@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using QuintasApp.Application.Features.Quintas.Commands.CreateQuinta;
 using QuintasApp.Application.Features.Quintas.Commands.DeleteQuinta;
 using QuintasApp.Application.Features.Quintas.Commands.UpdateQuinta;
+using QuintasApp.Application.Features.Quintas.Queries.GetDisponibles;
 using QuintasApp.Application.Features.Quintas.Queries.GetEsteFinde;
 using QuintasApp.Application.Features.Quintas.Queries.GetQuintaById;
 using QuintasApp.Application.Features.Quintas.Queries.GetQuintas;
@@ -31,6 +32,16 @@ public class QuintasController(IMediator mediator) : ControllerBase
     {
         var result = await mediator.Send(
             new GetEstefindeQuery(capacidad, precioMax, pileta, parrilla), ct);
+        return Ok(result);
+    }
+
+    [HttpGet("disponibles")]
+    public async Task<IActionResult> GetDisponibles(
+        [FromQuery] DateOnly fechaInicio,
+        [FromQuery] DateOnly fechaFin,
+        CancellationToken ct)
+    {
+        var result = await mediator.Send(new GetDisponiblesQuery(fechaInicio, fechaFin), ct);
         return Ok(result);
     }
 
