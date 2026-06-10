@@ -5,6 +5,7 @@ namespace QuintasApp.Application.Features.Alertas.Queries.GetAlertasByUser;
 public record AlertaDto(
     Guid Id,
     Guid QuintaId,
+    string QuintaNombre,
     DateOnly FechaInicio,
     DateOnly FechaFin,
     string Email,
