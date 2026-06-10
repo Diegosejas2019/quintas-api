@@ -3,6 +3,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace QuintasApp.Infrastructure.Persistence.Documents;
 
+[BsonIgnoreExtraElements]
 public class QuintaDocument
 {
     [BsonId]
@@ -41,6 +42,9 @@ public class QuintaDocument
 
     [BsonElement("longitud")]
     public decimal? Longitud { get; set; }
+
+    [BsonElement("amenities")]
+    public List<string> Amenities { get; set; } = [];
 
     [BsonElement("createdAt")]
     public DateTimeOffset CreatedAt { get; set; }

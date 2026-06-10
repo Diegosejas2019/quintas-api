@@ -93,6 +93,7 @@ public class QuintaRepository(MongoDbContext db) : IQuintaRepository
         Set(q, "Activa", d.Activa);
         Set(q, "Pileta", d.Pileta);
         Set(q, "Parrilla", d.Parrilla);
+        Set(q, "Amenities", d.Amenities);
         Set(q, "Direccion", d.Direccion);
         Set(q, "Latitud", d.Latitud);
         Set(q, "Longitud", d.Longitud);
@@ -112,6 +113,7 @@ public class QuintaRepository(MongoDbContext db) : IQuintaRepository
         Activa = q.Activa,
         Pileta = q.Pileta,
         Parrilla = q.Parrilla,
+        Amenities = q.Amenities,
         Direccion = q.Direccion,
         Latitud = q.Latitud,
         Longitud = q.Longitud,
