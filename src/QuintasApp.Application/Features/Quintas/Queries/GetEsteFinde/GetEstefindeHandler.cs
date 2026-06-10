@@ -29,7 +29,7 @@ public class GetEstefindeHandler(IQuintaRepository repo) : IRequestHandler<GetEs
         var dtos = quintas.Select(q => new QuintaDto(
             q.Id, q.Nombre, q.Descripcion, q.PrecioPorDia, q.Capacidad,
             q.Imagenes, q.Activa, q.Direccion, q.Latitud, q.Longitud,
-            q.Pileta, q.Parrilla)).ToList();
+            q.Pileta, q.Parrilla, q.Amenities)).ToList();
 
         return new EstefindeResponse(viernes, domingo, dtos.Count, dtos);
     }

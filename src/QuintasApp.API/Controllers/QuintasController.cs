@@ -62,7 +62,7 @@ public class QuintasController(IMediator mediator) : ControllerBase
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateQuintaRequest req, CancellationToken ct)
     {
-        await mediator.Send(new UpdateQuintaCommand(id, req.Nombre, req.Descripcion, req.PrecioPorDia, req.Capacidad, req.Imagenes, req.Direccion, req.Pileta, req.Parrilla), ct);
+        await mediator.Send(new UpdateQuintaCommand(id, req.Nombre, req.Descripcion, req.PrecioPorDia, req.Capacidad, req.Imagenes, req.Direccion, req.Pileta, req.Parrilla, req.Amenities), ct);
         return NoContent();
     }
 
@@ -74,4 +74,4 @@ public class QuintasController(IMediator mediator) : ControllerBase
     }
 }
 
-public record UpdateQuintaRequest(string Nombre, string? Descripcion, decimal PrecioPorDia, int Capacidad, List<string>? Imagenes, string? Direccion = null, bool Pileta = false, bool Parrilla = false);
+public record UpdateQuintaRequest(string Nombre, string? Descripcion, decimal PrecioPorDia, int Capacidad, List<string>? Imagenes, string? Direccion = null, bool Pileta = false, bool Parrilla = false, List<string>? Amenities = null);

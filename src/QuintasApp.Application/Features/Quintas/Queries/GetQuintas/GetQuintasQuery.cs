@@ -14,7 +14,8 @@ public record QuintaDto(
     decimal? Latitud = null,
     decimal? Longitud = null,
     bool Pileta = false,
-    bool Parrilla = false
+    bool Parrilla = false,
+    List<string>? Amenities = null
 );
 
 public record GetQuintasQuery : IRequest<List<QuintaDto>>;

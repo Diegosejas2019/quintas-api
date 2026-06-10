@@ -11,5 +11,6 @@ public record UpdateQuintaCommand(
     List<string>? Imagenes,
     string? Direccion = null,
     bool Pileta = false,
-    bool Parrilla = false
+    bool Parrilla = false,
+    List<string>? Amenities = null
 ) : IRequest;

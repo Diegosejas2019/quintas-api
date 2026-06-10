@@ -18,7 +18,7 @@ public class GetDisponiblesHandler(IQuintaRepository repo) : IRequestHandler<Get
         var dtos = quintas.Select(q => new QuintaDto(
             q.Id, q.Nombre, q.Descripcion, q.PrecioPorDia, q.Capacidad,
             q.Imagenes, q.Activa, q.Direccion, q.Latitud, q.Longitud,
-            q.Pileta, q.Parrilla)).ToList();
+            q.Pileta, q.Parrilla, q.Amenities)).ToList();
 
         return new EstefindeResponse(query.FechaInicio, query.FechaFin, dtos.Count, dtos);
     }
