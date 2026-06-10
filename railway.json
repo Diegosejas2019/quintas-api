@@ -1,0 +1,9 @@
+{
+  "$schema": "https://railway.com/railway.schema.json",
+  "build": {
+    "buildCommand": "dotnet publish src/QuintasApp.API/QuintasApp.API.csproj -c Release -o out"
+  },
+  "deploy": {
+    "startCommand": "dotnet out/QuintasApp.API.dll"
+  }
+}
