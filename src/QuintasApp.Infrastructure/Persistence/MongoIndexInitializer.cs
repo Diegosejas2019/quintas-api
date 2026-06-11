@@ -49,6 +49,20 @@ public class MongoIndexInitializer(MongoDbContext db, ILogger<MongoIndexInitiali
                     new CreateIndexOptions { Name = "ix_alertas_quintaId" }),
                 cancellationToken: ct);
 
+            // Unique index on supabaseId for upsert lookups
+            var usuariosSupabaseKey = Builders<UsuarioDocument>.IndexKeys.Ascending(u => u.SupabaseId);
+            await db.Usuarios.Indexes.CreateOneAsync(
+                new CreateIndexModel<UsuarioDocument>(usuariosSupabaseKey,
+                    new CreateIndexOptions { Unique = true, Name = "ux_usuarios_supabaseId" }),
+                cancellationToken: ct);
+
+            // Index on usuarioId in reservas for "mis reservas" queries
+            var reservasUsuarioKey = Builders<ReservaDocument>.IndexKeys.Ascending(r => r.UsuarioId);
+            await db.Reservas.Indexes.CreateOneAsync(
+                new CreateIndexModel<ReservaDocument>(reservasUsuarioKey,
+                    new CreateIndexOptions { Name = "ix_reservas_usuarioId" }),
+                cancellationToken: ct);
+
             logger.LogInformation("MongoDB indexes initialized successfully.");
         }
         catch (Exception ex)

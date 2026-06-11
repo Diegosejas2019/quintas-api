@@ -40,6 +40,15 @@ public class ReservaRepository(MongoDbContext db) : IReservaRepository
         return entity;
     }
 
+    public async Task<List<Reserva>> GetByUsuarioIdAsync(string usuarioId, CancellationToken ct = default)
+    {
+        var docs = await db.Reservas
+            .Find(r => r.UsuarioId == usuarioId)
+            .SortByDescending(r => r.FechaInicio)
+            .ToListAsync(ct);
+        return docs.Select(ToEntity).ToList();
+    }
+
     public async Task<bool> ExisteSolapamientoAsync(Guid quintaId, DateOnly fechaInicio, DateOnly fechaFin, Guid? excludeReservaId = null, CancellationToken ct = default)
     {
         var qIdStr = quintaId.ToString();
@@ -74,8 +83,12 @@ public class ReservaRepository(MongoDbContext db) : IReservaRepository
             .ToList();
     }
 
-    public async Task AddAsync(Reserva reserva, string quintaNombre, CancellationToken ct = default) =>
-        await db.Reservas.InsertOneAsync(ToDocument(reserva, quintaNombre), cancellationToken: ct);
+    public async Task AddAsync(Reserva reserva, string quintaNombre, Guid? usuarioId = null, CancellationToken ct = default)
+    {
+        var doc = ToDocument(reserva, quintaNombre);
+        doc.UsuarioId = usuarioId?.ToString();
+        await db.Reservas.InsertOneAsync(doc, cancellationToken: ct);
+    }
 
     public async Task SaveChangesAsync(CancellationToken ct = default)
     {

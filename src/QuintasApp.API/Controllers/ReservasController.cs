@@ -1,20 +1,36 @@
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using QuintasApp.Application.Features.Reservas.Commands.CancelReserva;
 using QuintasApp.Application.Features.Reservas.Commands.CreateReserva;
 using QuintasApp.Application.Features.Reservas.Commands.FinalizarReserva;
 using QuintasApp.Application.Features.Reservas.Queries.GetDisponibilidad;
 using QuintasApp.Application.Features.Reservas.Queries.GetReservas;
+using QuintasApp.Application.Features.Reservas.Queries.GetReservasByUsuario;
 using QuintasApp.Application.Features.Senas.Commands.RegistrarSena;
-using QuintasApp.Domain.Entities;
+using QuintasApp.Domain.Interfaces;
 using QuintasApp.Domain.Enums;
+using QuintasApp.Domain.Entities;
+using System.Security.Claims;
 
 namespace QuintasApp.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class ReservasController(IMediator mediator) : ControllerBase
+public class ReservasController(IMediator mediator, IUsuarioRepository usuarioRepo) : ControllerBase
 {
+    private string SupabaseId => User.FindFirstValue(ClaimTypes.NameIdentifier)
+        ?? User.FindFirstValue("sub")!;
+
+    [Authorize]
+    [HttpGet("mias")]
+    public async Task<IActionResult> GetMias(CancellationToken ct)
+    {
+        var usuario = await usuarioRepo.GetBySupabaseIdAsync(SupabaseId, ct);
+        if (usuario is null) return Ok(Array.Empty<ReservaDto>());
+        return Ok(await mediator.Send(new GetReservasByUsuarioQuery(usuario.Id.ToString()), ct));
+    }
+
     [HttpGet]
     public async Task<IActionResult> GetAll(
         [FromQuery] EstadoReserva? estado,

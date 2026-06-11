@@ -23,4 +23,7 @@ public class MongoDbContext(IMongoDatabase database)
 
     public IMongoCollection<FechaOcupada> FechasOcupadas =>
         database.GetCollection<FechaOcupada>("fechas_ocupadas");
+
+    public IMongoCollection<UsuarioDocument> Usuarios =>
+        database.GetCollection<UsuarioDocument>("usuarios");
 }

@@ -8,5 +8,6 @@ public record CreateReservaCommand(
     string EmailCliente,
     string TelefonoCliente,
     DateOnly FechaInicio,
-    DateOnly FechaFin
+    DateOnly FechaFin,
+    Guid? UsuarioId = null
 ) : IRequest<Guid>;

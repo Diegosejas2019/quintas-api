@@ -29,7 +29,7 @@ public class CreateReservaHandler(
         // InsertarFechasOcupadasAsync uses the unique (quintaId, fecha) index to atomically
         // detect overlaps. Throws FechasSuperposicionException on duplicate (409).
         await reservaRepo.InsertarFechasOcupadasAsync(reserva.Id, cmd.QuintaId, cmd.FechaInicio, cmd.FechaFin, ct);
-        await reservaRepo.AddAsync(reserva, quinta.Nombre, ct);
+        await reservaRepo.AddAsync(reserva, quinta.Nombre, cmd.UsuarioId, ct);
 
         return reserva.Id;
     }

@@ -40,6 +40,9 @@ public class ReservaDocument
     [BsonElement("sena")]
     public SenaDocument? Sena { get; set; }
 
+    [BsonElement("usuarioId")]
+    public string? UsuarioId { get; set; }
+
     [BsonElement("createdAt")]
     public DateTimeOffset CreatedAt { get; set; }
 

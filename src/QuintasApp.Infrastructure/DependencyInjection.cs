@@ -28,6 +28,7 @@ public static class DependencyInjection
         services.AddScoped<IOpinionRepository, OpinionRepository>();
         services.AddScoped<IAlertaDisponibilidadRepository, AlertaDisponibilidadRepository>();
         services.AddScoped<IPushTokenRepository, PushTokenRepository>();
+        services.AddScoped<IUsuarioRepository, UsuarioRepository>();
         services.AddScoped<INotificacionService, NotificacionService>();
         services.AddSingleton<IBackgroundNotificador, BackgroundNotificador>();
         services.AddScoped<ResendEmailService>();
