@@ -8,7 +8,7 @@ public class UpsertUsuarioHandler(IUsuarioRepository repo) : IRequestHandler<Ups
 {
     public async Task<UsuarioDto> Handle(UpsertUsuarioCommand cmd, CancellationToken ct)
     {
-        var nuevo = Usuario.Crear(cmd.SupabaseId, cmd.Email, cmd.Nombre);
+        var nuevo = Usuario.Crear(cmd.SupabaseId, cmd.Email, cmd.Nombre, cmd.TipoUsuario ?? "cliente");
         var usuario = await repo.UpsertBySupabaseIdAsync(nuevo, ct);
         return ToDto(usuario);
     }

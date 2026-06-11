@@ -11,5 +11,8 @@ public record CreateQuintaCommand(
     string? Direccion = null,
     bool Pileta = false,
     bool Parrilla = false,
-    List<string>? Amenities = null
+    List<string>? Amenities = null,
+    decimal? Latitud = null,
+    decimal? Longitud = null,
+    string PropietarioId = ""
 ) : IRequest<Guid>;

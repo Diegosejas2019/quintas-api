@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using QuintasApp.Application.Features.Quintas.Commands.CreateQuinta;
 using QuintasApp.Application.Features.Quintas.Commands.DeleteQuinta;
@@ -7,6 +8,7 @@ using QuintasApp.Application.Features.Quintas.Queries.GetDisponibles;
 using QuintasApp.Application.Features.Quintas.Queries.GetEsteFinde;
 using QuintasApp.Application.Features.Quintas.Queries.GetQuintaById;
 using QuintasApp.Application.Features.Quintas.Queries.GetQuintas;
+using System.Security.Claims;
 
 namespace QuintasApp.API.Controllers;
 
@@ -14,14 +16,20 @@ namespace QuintasApp.API.Controllers;
 [Route("api/[controller]")]
 public class QuintasController(IMediator mediator) : ControllerBase
 {
-    [HttpGet]
-    public async Task<IActionResult> GetAll(CancellationToken ct) =>
-        Ok(await mediator.Send(new GetQuintasQuery(), ct));
+    private string? SupabaseId => User.FindFirstValue(ClaimTypes.NameIdentifier)
+        ?? User.FindFirstValue("sub");
 
-    /// <summary>
-    /// Devuelve solo las quintas disponibles este fin de semana (viernes→domingo próximos).
-    /// Filtros opcionales: capacidad, precioMax, pileta, parrilla.
-    /// </summary>
+    private string? TipoUsuario => User.FindFirstValue("user_metadata.tipoUsuario")
+        ?? User.FindFirstValue("tipoUsuario");
+
+    [HttpGet]
+    public async Task<IActionResult> GetAll(CancellationToken ct)
+    {
+        var esPropietario = User.Identity?.IsAuthenticated == true && TipoUsuario == "propietario";
+        var propietarioId = esPropietario ? SupabaseId : null;
+        return Ok(await mediator.Send(new GetQuintasQuery(propietarioId), ct));
+    }
+
     [HttpGet("este-finde")]
     public async Task<IActionResult> GetEsteFinde(
         [FromQuery] int? capacidad,
@@ -52,26 +60,44 @@ public class QuintasController(IMediator mediator) : ControllerBase
         return result == null ? NotFound() : Ok(result);
     }
 
+    [Authorize]
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreateQuintaCommand cmd, CancellationToken ct)
+    public async Task<IActionResult> Create([FromBody] CreateQuintaRequest req, CancellationToken ct)
     {
+        var cmd = new CreateQuintaCommand(req.Nombre, req.Descripcion, req.PrecioPorDia, req.Capacidad,
+            req.Imagenes, req.Direccion, req.Pileta, req.Parrilla, req.Amenities, req.Latitud, req.Longitud,
+            PropietarioId: SupabaseId!);
         var id = await mediator.Send(cmd, ct);
         return CreatedAtAction(nameof(GetById), new { id }, new { id });
     }
 
+    [Authorize]
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateQuintaRequest req, CancellationToken ct)
     {
-        await mediator.Send(new UpdateQuintaCommand(id, req.Nombre, req.Descripcion, req.PrecioPorDia, req.Capacidad, req.Imagenes, req.Direccion, req.Pileta, req.Parrilla, req.Amenities), ct);
+        await mediator.Send(new UpdateQuintaCommand(id, req.Nombre, req.Descripcion, req.PrecioPorDia,
+            req.Capacidad, req.Imagenes, req.Direccion, req.Pileta, req.Parrilla, req.Amenities,
+            req.Latitud, req.Longitud, PropietarioId: SupabaseId!), ct);
         return NoContent();
     }
 
+    [Authorize]
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
     {
-        await mediator.Send(new DeleteQuintaCommand(id), ct);
+        await mediator.Send(new DeleteQuintaCommand(id, PropietarioId: SupabaseId!), ct);
         return NoContent();
     }
 }
 
-public record UpdateQuintaRequest(string Nombre, string? Descripcion, decimal PrecioPorDia, int Capacidad, List<string>? Imagenes, string? Direccion = null, bool Pileta = false, bool Parrilla = false, List<string>? Amenities = null);
+public record CreateQuintaRequest(
+    string Nombre, string? Descripcion, decimal PrecioPorDia, int Capacidad,
+    List<string>? Imagenes = null, string? Direccion = null,
+    bool Pileta = false, bool Parrilla = false, List<string>? Amenities = null,
+    decimal? Latitud = null, decimal? Longitud = null);
+
+public record UpdateQuintaRequest(
+    string Nombre, string? Descripcion, decimal PrecioPorDia, int Capacidad,
+    List<string>? Imagenes, string? Direccion = null,
+    bool Pileta = false, bool Parrilla = false, List<string>? Amenities = null,
+    decimal? Latitud = null, decimal? Longitud = null);

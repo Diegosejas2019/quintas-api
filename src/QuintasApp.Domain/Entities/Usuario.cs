@@ -14,13 +14,13 @@ public class Usuario
 
     private Usuario() { }
 
-    public static Usuario Crear(string supabaseId, string email, string nombre) => new()
+    public static Usuario Crear(string supabaseId, string email, string nombre, string tipoUsuario = "cliente") => new()
     {
         Id = Guid.NewGuid(),
         SupabaseId = supabaseId,
         Email = email.Trim().ToLowerInvariant(),
         Nombre = nombre.Trim(),
-        TipoUsuario = "cliente",
+        TipoUsuario = tipoUsuario,
         CreatedAt = DateTimeOffset.UtcNow,
         UpdatedAt = DateTimeOffset.UtcNow,
     };

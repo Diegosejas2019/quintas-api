@@ -37,8 +37,11 @@ public class ReservasController(IMediator mediator, IUsuarioRepository usuarioRe
         [FromQuery] Guid? quintaId,
         [FromQuery] int page = 1,
         [FromQuery] int size = 20,
-        CancellationToken ct = default) =>
-        Ok(await mediator.Send(new GetReservasQuery(estado, quintaId, page, size), ct));
+        CancellationToken ct = default)
+    {
+        var propietarioId = User.Identity?.IsAuthenticated == true ? SupabaseId : null;
+        return Ok(await mediator.Send(new GetReservasQuery(estado, quintaId, page, size, propietarioId), ct));
+    }
 
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateReservaCommand cmd, CancellationToken ct)

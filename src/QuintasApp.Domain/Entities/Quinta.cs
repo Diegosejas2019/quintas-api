@@ -12,6 +12,7 @@ public class Quinta
     public List<string> Imagenes { get; private set; } = [];
     public List<string> Amenities { get; private set; } = [];
     public bool Activa { get; private set; }
+    public string PropietarioId { get; private set; } = default!;
     public bool Pileta { get; private set; }
     public bool Parrilla { get; private set; }
     public string? Direccion { get; private set; }
@@ -22,7 +23,7 @@ public class Quinta
 
     private Quinta() { }
 
-    public static Quinta Crear(string nombre, string? descripcion, decimal precioPorDia, int capacidad, List<string>? imagenes = null, string? direccion = null, decimal? latitud = null, decimal? longitud = null, bool pileta = false, bool parrilla = false, List<string>? amenities = null)
+    public static Quinta Crear(string nombre, string? descripcion, decimal precioPorDia, int capacidad, string propietarioId, List<string>? imagenes = null, string? direccion = null, decimal? latitud = null, decimal? longitud = null, bool pileta = false, bool parrilla = false, List<string>? amenities = null)
     {
         if (string.IsNullOrWhiteSpace(nombre))
             throw new DomainException("El nombre de la quinta es requerido.");
@@ -38,6 +39,7 @@ public class Quinta
             Descripcion = descripcion?.Trim(),
             PrecioPorDia = precioPorDia,
             Capacidad = capacidad,
+            PropietarioId = propietarioId,
             Imagenes = imagenes ?? [],
             Amenities = amenities ?? [],
             Activa = true,

@@ -7,5 +7,6 @@ public record UsuarioDto(Guid Id, string Email, string Nombre, string? Telefono,
 public record UpsertUsuarioCommand(
     string SupabaseId,
     string Email,
-    string Nombre
+    string Nombre,
+    string? TipoUsuario = null
 ) : IRequest<UsuarioDto>;

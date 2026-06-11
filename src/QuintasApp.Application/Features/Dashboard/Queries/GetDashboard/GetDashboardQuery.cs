@@ -11,4 +11,4 @@ public record DashboardDto(
     decimal IngresosEsteMes
 );
 
-public record GetDashboardQuery : IRequest<DashboardDto>;
+public record GetDashboardQuery(string? PropietarioId = null) : IRequest<DashboardDto>;

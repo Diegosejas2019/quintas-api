@@ -12,13 +12,15 @@ public class ReservaRepository(MongoDbContext db) : IReservaRepository
 {
     private readonly List<Reserva> _tracked = [];
 
-    public async Task<List<Reserva>> GetAllAsync(EstadoReserva? estado, Guid? quintaId, int page, int size, CancellationToken ct = default)
+    public async Task<List<Reserva>> GetAllAsync(EstadoReserva? estado, Guid? quintaId, int page, int size, CancellationToken ct = default, IEnumerable<string>? quintaIds = null)
     {
         var filter = Builders<ReservaDocument>.Filter.Empty;
         if (estado.HasValue)
             filter &= Builders<ReservaDocument>.Filter.Eq(r => r.Estado, estado.Value.ToString());
         if (quintaId.HasValue)
             filter &= Builders<ReservaDocument>.Filter.Eq(r => r.QuintaId, quintaId.Value.ToString());
+        if (quintaIds is not null)
+            filter &= Builders<ReservaDocument>.Filter.In(r => r.QuintaId, quintaIds);
 
         var docs = await db.Reservas
             .Find(filter)

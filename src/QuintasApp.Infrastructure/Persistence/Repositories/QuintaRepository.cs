@@ -19,6 +19,15 @@ public class QuintaRepository(MongoDbContext db) : IQuintaRepository
         return docs.Select(ToEntity).ToList();
     }
 
+    public async Task<List<Quinta>> GetAllByPropietarioAsync(string propietarioId, CancellationToken ct = default)
+    {
+        var docs = await db.Quintas
+            .Find(q => q.PropietarioId == propietarioId)
+            .SortBy(q => q.Nombre)
+            .ToListAsync(ct);
+        return docs.Select(ToEntity).ToList();
+    }
+
     public async Task<Quinta?> GetByIdAsync(Guid id, CancellationToken ct = default)
     {
         var idStr = id.ToString();
@@ -89,6 +98,7 @@ public class QuintaRepository(MongoDbContext db) : IQuintaRepository
         Set(q, "Descripcion", d.Descripcion);
         Set(q, "PrecioPorDia", d.PrecioPorDia);
         Set(q, "Capacidad", d.Capacidad);
+        Set(q, "PropietarioId", d.PropietarioId ?? "");
         Set(q, "Imagenes", d.Imagenes);
         Set(q, "Activa", d.Activa);
         Set(q, "Pileta", d.Pileta);
@@ -109,6 +119,7 @@ public class QuintaRepository(MongoDbContext db) : IQuintaRepository
         Descripcion = q.Descripcion,
         PrecioPorDia = q.PrecioPorDia,
         Capacidad = q.Capacidad,
+        PropietarioId = q.PropietarioId,
         Imagenes = q.Imagenes,
         Activa = q.Activa,
         Pileta = q.Pileta,

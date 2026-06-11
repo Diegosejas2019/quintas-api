@@ -24,10 +24,14 @@ public class UsuariosController(IMediator mediator) : ControllerBase
     private string UserName => User.FindFirstValue("name")
         ?? User.FindFirstValue(ClaimTypes.Name) ?? "";
 
+    private string? TipoUsuarioFromJwt =>
+        User.FindFirstValue("user_metadata.tipoUsuario")
+        ?? User.FindFirstValue("tipoUsuario");
+
     [HttpPost]
     public async Task<IActionResult> Upsert(CancellationToken ct)
     {
-        var dto = await mediator.Send(new UpsertUsuarioCommand(SupabaseId, UserEmail, UserName), ct);
+        var dto = await mediator.Send(new UpsertUsuarioCommand(SupabaseId, UserEmail, UserName, TipoUsuarioFromJwt), ct);
         return Ok(dto);
     }
 

@@ -9,10 +9,17 @@ public class GetDashboardHandler(IQuintaRepository quintaRepo, IReservaRepositor
 {
     public async Task<DashboardDto> Handle(GetDashboardQuery query, CancellationToken ct)
     {
-        var quintas = await quintaRepo.GetAllAsync(ct);
-        var pendientes = await reservaRepo.GetAllAsync(EstadoReserva.Pendiente, null, 1, 1000, ct);
-        var confirmadas = await reservaRepo.GetAllAsync(EstadoReserva.Confirmada, null, 1, 1000, ct);
-        var finalizadas = await reservaRepo.GetAllAsync(EstadoReserva.Finalizada, null, 1, 1000, ct);
+        var quintas = query.PropietarioId is not null
+            ? await quintaRepo.GetAllByPropietarioAsync(query.PropietarioId, ct)
+            : await quintaRepo.GetAllAsync(ct);
+
+        IEnumerable<string>? quintaIds = query.PropietarioId is not null
+            ? quintas.Select(q => q.Id.ToString())
+            : null;
+
+        var pendientes = await reservaRepo.GetAllAsync(EstadoReserva.Pendiente, null, 1, 1000, ct, quintaIds);
+        var confirmadas = await reservaRepo.GetAllAsync(EstadoReserva.Confirmada, null, 1, 1000, ct, quintaIds);
+        var finalizadas = await reservaRepo.GetAllAsync(EstadoReserva.Finalizada, null, 1, 1000, ct, quintaIds);
 
         var hoy = DateTime.UtcNow;
         var inicioMes = new DateTime(hoy.Year, hoy.Month, 1, 0, 0, 0, DateTimeKind.Utc);

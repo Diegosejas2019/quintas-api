@@ -10,6 +10,8 @@ public class DeleteQuintaHandler(IQuintaRepository repo) : IRequestHandler<Delet
     {
         var quinta = await repo.GetByIdAsync(cmd.Id, ct)
             ?? throw new DomainException($"Quinta con id {cmd.Id} no encontrada.");
+        if (quinta.PropietarioId != cmd.PropietarioId)
+            throw new DomainException("No tenés permiso para desactivar esta quinta.");
         quinta.Desactivar();
         await repo.SaveChangesAsync(ct);
     }

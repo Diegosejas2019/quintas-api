@@ -25,6 +25,9 @@ public class QuintaDocument
     [BsonElement("imagenes")]
     public List<string> Imagenes { get; set; } = [];
 
+    [BsonElement("propietarioId")]
+    public string PropietarioId { get; set; } = default!;
+
     [BsonElement("activa")]
     public bool Activa { get; set; }
 

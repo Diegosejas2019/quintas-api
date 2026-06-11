@@ -18,4 +18,4 @@ public record QuintaDto(
     List<string>? Amenities = null
 );
 
-public record GetQuintasQuery : IRequest<List<QuintaDto>>;
+public record GetQuintasQuery(string? PropietarioId = null) : IRequest<List<QuintaDto>>;
