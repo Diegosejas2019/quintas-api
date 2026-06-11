@@ -8,6 +8,7 @@ public class Usuario
     public string Nombre { get; private set; } = default!;
     public string? Telefono { get; private set; }
     public string TipoUsuario { get; private set; } = "cliente";
+    public List<string> Favoritos { get; private set; } = [];
     public DateTimeOffset CreatedAt { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
 
@@ -23,6 +24,12 @@ public class Usuario
         CreatedAt = DateTimeOffset.UtcNow,
         UpdatedAt = DateTimeOffset.UtcNow,
     };
+
+    public void SyncFavoritos(IEnumerable<string> quintaIds)
+    {
+        Favoritos = quintaIds.Distinct().ToList();
+        UpdatedAt = DateTimeOffset.UtcNow;
+    }
 
     public void ActualizarPerfil(string? nombre, string? telefono)
     {

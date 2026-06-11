@@ -29,4 +29,7 @@ public class UsuarioDocument
 
     [BsonElement("updatedAt")]
     public DateTimeOffset UpdatedAt { get; set; }
+
+    [BsonElement("favoritos")]
+    public List<string> Favoritos { get; set; } = [];
 }

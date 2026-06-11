@@ -46,6 +46,20 @@ public class UsuarioRepository(MongoDbContext db) : IUsuarioRepository
         _tracked.Clear();
     }
 
+    public async Task<List<string>> GetFavoritosAsync(string supabaseId, CancellationToken ct = default)
+    {
+        var doc = await db.Usuarios.Find(u => u.SupabaseId == supabaseId).FirstOrDefaultAsync(ct);
+        return doc?.Favoritos ?? [];
+    }
+
+    public async Task<List<string>> SyncFavoritosAsync(string supabaseId, IEnumerable<string> quintaIds, CancellationToken ct = default)
+    {
+        var ids = quintaIds.Distinct().ToList();
+        var update = Builders<UsuarioDocument>.Update.Set(u => u.Favoritos, ids);
+        await db.Usuarios.UpdateOneAsync(u => u.SupabaseId == supabaseId, update, cancellationToken: ct);
+        return ids;
+    }
+
     private readonly List<Usuario> _tracked = [];
 
     public void Track(Usuario u) => _tracked.Add(u);
@@ -61,6 +75,7 @@ public class UsuarioRepository(MongoDbContext db) : IUsuarioRepository
         Set(u, "TipoUsuario", d.TipoUsuario);
         Set(u, "CreatedAt", d.CreatedAt);
         Set(u, "UpdatedAt", d.UpdatedAt);
+        Set(u, "Favoritos", d.Favoritos ?? []);
         return u;
     }
 
@@ -74,6 +89,7 @@ public class UsuarioRepository(MongoDbContext db) : IUsuarioRepository
         TipoUsuario = u.TipoUsuario,
         CreatedAt = u.CreatedAt,
         UpdatedAt = u.UpdatedAt,
+        Favoritos = u.Favoritos,
     };
 
     private static void Set<T>(object obj, string prop, T value)

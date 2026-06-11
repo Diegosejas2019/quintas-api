@@ -2,7 +2,9 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using QuintasApp.Application.Features.Usuarios.Commands.ActualizarPerfil;
+using QuintasApp.Application.Features.Usuarios.Commands.SyncFavoritos;
 using QuintasApp.Application.Features.Usuarios.Commands.UpsertUsuario;
+using QuintasApp.Application.Features.Usuarios.Queries.GetFavoritos;
 using QuintasApp.Application.Features.Usuarios.Queries.GetPerfil;
 using System.Security.Claims;
 
@@ -42,6 +44,21 @@ public class UsuariosController(IMediator mediator) : ControllerBase
         var dto = await mediator.Send(new ActualizarPerfilCommand(SupabaseId, req.Nombre, req.Telefono), ct);
         return Ok(dto);
     }
+
+    [HttpGet("me/favoritos")]
+    public async Task<IActionResult> GetFavoritos(CancellationToken ct)
+    {
+        var ids = await mediator.Send(new GetFavoritosQuery(SupabaseId), ct);
+        return Ok(ids);
+    }
+
+    [HttpPost("me/favoritos/sync")]
+    public async Task<IActionResult> SyncFavoritos([FromBody] SyncFavoritosRequest req, CancellationToken ct)
+    {
+        var ids = await mediator.Send(new SyncFavoritosCommand(SupabaseId, req.QuintaIds), ct);
+        return Ok(ids);
+    }
 }
 
 public record ActualizarPerfilRequest(string? Nombre, string? Telefono);
+public record SyncFavoritosRequest(List<string> QuintaIds);

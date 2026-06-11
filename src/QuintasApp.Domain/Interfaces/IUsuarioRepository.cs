@@ -8,4 +8,6 @@ public interface IUsuarioRepository
     Task<Usuario?> GetBySupabaseIdAsync(string supabaseId, CancellationToken ct = default);
     Task<Usuario?> GetByIdAsync(Guid id, CancellationToken ct = default);
     Task SaveChangesAsync(CancellationToken ct = default);
+    Task<List<string>> GetFavoritosAsync(string supabaseId, CancellationToken ct = default);
+    Task<List<string>> SyncFavoritosAsync(string supabaseId, IEnumerable<string> quintaIds, CancellationToken ct = default);
 }
