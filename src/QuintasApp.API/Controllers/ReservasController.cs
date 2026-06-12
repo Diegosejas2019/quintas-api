@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using QuintasApp.Application.Features.Reservas.Commands.CancelReserva;
 using QuintasApp.Application.Features.Reservas.Commands.CreateReserva;
+using QuintasApp.Application.Features.Reservas.Commands.ConfirmarReserva;
 using QuintasApp.Application.Features.Reservas.Commands.FinalizarReserva;
 using QuintasApp.Application.Features.Reservas.Queries.GetDisponibilidad;
 using QuintasApp.Application.Features.Reservas.Queries.GetReservas;
@@ -48,6 +49,13 @@ public class ReservasController(IMediator mediator, IUsuarioRepository usuarioRe
     {
         var id = await mediator.Send(cmd, ct);
         return Created($"api/reservas/{id}", new { id });
+    }
+
+    [HttpPut("{id:guid}/confirmar")]
+    public async Task<IActionResult> Confirmar(Guid id, CancellationToken ct)
+    {
+        await mediator.Send(new ConfirmarReservaCommand(id), ct);
+        return NoContent();
     }
 
     [HttpPut("{id:guid}/cancelar")]
