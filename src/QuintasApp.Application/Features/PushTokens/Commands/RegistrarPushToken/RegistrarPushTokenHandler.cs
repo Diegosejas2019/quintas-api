@@ -7,7 +7,7 @@ public class RegistrarPushTokenHandler(IPushTokenRepository repo) : IRequestHand
 {
     public async Task Handle(RegistrarPushTokenCommand cmd, CancellationToken ct)
     {
-        await repo.UpsertAsync(cmd.UserId, cmd.Token, ct);
+        await repo.UpsertAsync(cmd.UserId, cmd.Token, cmd.Platform, ct);
         await repo.SaveChangesAsync(ct);
     }
 }

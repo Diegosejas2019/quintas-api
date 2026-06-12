@@ -16,9 +16,9 @@ public class PushTokensController(IMediator mediator) : ControllerBase
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)
             ?? User.FindFirstValue("sub")!;
-        await mediator.Send(new RegistrarPushTokenCommand(userId, req.Token), ct);
+        await mediator.Send(new RegistrarPushTokenCommand(userId, req.Token, req.Platform ?? "expo"), ct);
         return NoContent();
     }
 }
 
-public record RegistrarTokenRequest(string Token);
+public record RegistrarTokenRequest(string Token, string? Platform = null);

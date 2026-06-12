@@ -13,11 +13,16 @@ public class PushTokenRepository(MongoDbContext db) : IPushTokenRepository
         return docs.Select(ToEntity).ToList();
     }
 
-    public async Task UpsertAsync(string userId, string token, CancellationToken ct = default)
+    public async Task UpsertAsync(string userId, string token, string platform = "expo", CancellationToken ct = default)
     {
         var exists = await db.PushTokens.Find(p => p.Token == token).AnyAsync(ct);
         if (!exists)
-            await db.PushTokens.InsertOneAsync(ToDocument(PushToken.Crear(userId, token)), cancellationToken: ct);
+            await db.PushTokens.InsertOneAsync(ToDocument(PushToken.Crear(userId, token, platform)), cancellationToken: ct);
+        else
+            await db.PushTokens.UpdateOneAsync(
+                p => p.Token == token,
+                Builders<PushTokenDocument>.Update.Set(p => p.Platform, platform),
+                cancellationToken: ct);
     }
 
     public Task SaveChangesAsync(CancellationToken ct = default) => Task.CompletedTask;
@@ -28,6 +33,7 @@ public class PushTokenRepository(MongoDbContext db) : IPushTokenRepository
         Set(p, "Id", Guid.Parse(d.Id));
         Set(p, "UserId", d.UserId);
         Set(p, "Token", d.Token);
+        Set(p, "Platform", d.Platform);
         Set(p, "CreatedAt", d.CreatedAt);
         return p;
     }
@@ -37,6 +43,7 @@ public class PushTokenRepository(MongoDbContext db) : IPushTokenRepository
         Id = p.Id.ToString(),
         UserId = p.UserId,
         Token = p.Token,
+        Platform = p.Platform,
         CreatedAt = p.CreatedAt,
     };
 

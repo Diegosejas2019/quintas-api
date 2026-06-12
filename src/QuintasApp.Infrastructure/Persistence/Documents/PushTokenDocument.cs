@@ -15,6 +15,10 @@ public class PushTokenDocument
     [BsonElement("token")]
     public string Token { get; set; } = default!;
 
+    [BsonElement("platform")]
+    [BsonDefaultValue("expo")]
+    public string Platform { get; set; } = "expo";
+
     [BsonElement("createdAt")]
     public DateTimeOffset CreatedAt { get; set; }
 }

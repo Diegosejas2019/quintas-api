@@ -8,7 +8,8 @@ namespace QuintasApp.Infrastructure.Services;
 public class NotificacionService(
     MongoDbContext db,
     ResendEmailService emailService,
-    ExpoPushService pushService) : INotificacionService
+    ExpoPushService expoPushService,
+    FcmPushService fcmPushService) : INotificacionService
 {
     public async Task NotificarCancelacionAsync(Guid quintaId, DateOnly fechaInicio, DateOnly fechaFin, CancellationToken ct = default)
     {
@@ -30,21 +31,23 @@ public class NotificacionService(
 
         var userIds = alertas.Select(a => a.UserId).Distinct().ToList();
 
-        var pushTokens = await db.PushTokens
+        var tokenDocs = await db.PushTokens
             .Find(Builders<PushTokenDocument>.Filter.In(p => p.UserId, userIds))
-            .Project(p => p.Token)
             .ToListAsync(ct);
 
-        var emailTasks = alertas.Select(alerta =>
-            emailService.SendAlertaDisponibilidadAsync(alerta.Email, quinta.Nombre, fechaInicio, fechaFin, ct));
+        var expoTokens = tokenDocs.Where(t => (t.Platform ?? "expo") == "expo").Select(t => t.Token).ToList();
+        var fcmTokens  = tokenDocs.Where(t => t.Platform == "fcm").Select(t => t.Token).ToList();
 
-        var pushTask = pushService.SendAsync(
-            pushTokens,
-            $"¡{quinta.Nombre} disponible!",
-            $"Fechas {fechaInicio:dd/MM} - {fechaFin:dd/MM} liberadas. ¡Reservá ahora!",
-            ct);
+        var titulo = $"¡{quinta.Nombre} disponible!";
+        var cuerpo = $"Fechas {fechaInicio:dd/MM} - {fechaFin:dd/MM} liberadas. ¡Reservá ahora!";
 
-        await Task.WhenAll([.. emailTasks, pushTask]);
+        var tasks = new List<Task>();
+        tasks.AddRange(alertas.Select(alerta =>
+            emailService.SendAlertaDisponibilidadAsync(alerta.Email, quinta.Nombre, fechaInicio, fechaFin, ct)));
+        if (expoTokens.Count > 0) tasks.Add(expoPushService.SendAsync(expoTokens, titulo, cuerpo, ct));
+        if (fcmTokens.Count > 0)  tasks.Add(fcmPushService.EnviarAsync(fcmTokens, titulo, cuerpo, ct));
+
+        await Task.WhenAll(tasks);
 
         var alertaIds = alertas.Select(a => a.Id).ToList();
         await db.AlertasDisponibilidad.UpdateManyAsync(

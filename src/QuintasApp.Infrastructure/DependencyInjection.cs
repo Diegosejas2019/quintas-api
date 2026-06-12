@@ -35,6 +35,7 @@ public static class DependencyInjection
         services.AddSingleton<IBackgroundNotificador, BackgroundNotificador>();
         services.AddScoped<ResendEmailService>();
         services.AddScoped<ExpoPushService>();
+        services.AddScoped<FcmPushService>();
 
         services.AddHttpClient("Resend", client =>
         {

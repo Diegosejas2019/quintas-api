@@ -5,17 +5,19 @@ public class PushToken
     public Guid Id { get; private set; }
     public string UserId { get; private set; } = default!;
     public string Token { get; private set; } = default!;
+    public string Platform { get; private set; } = "expo";
     public DateTimeOffset CreatedAt { get; private set; }
 
     private PushToken() { }
 
-    public static PushToken Crear(string userId, string token)
+    public static PushToken Crear(string userId, string token, string platform = "expo")
     {
         return new PushToken
         {
             Id = Guid.NewGuid(),
             UserId = userId,
             Token = token.Trim(),
+            Platform = platform,
             CreatedAt = DateTimeOffset.UtcNow
         };
     }
