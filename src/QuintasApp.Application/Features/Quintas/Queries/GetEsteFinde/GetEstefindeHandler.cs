@@ -8,21 +8,29 @@ public class GetEstefindeHandler(IQuintaRepository repo) : IRequestHandler<GetEs
 {
     public async Task<EstefindeResponse> Handle(GetEstefindeQuery query, CancellationToken ct)
     {
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        DateOnly inicio, fin;
 
-        // Calcula el viernes más cercano (hacia adelante o el fin de semana en curso si es sáb/dom)
-        var viernes = today.DayOfWeek switch
+        if (query.FechaInicio.HasValue && query.FechaFin.HasValue)
         {
-            DayOfWeek.Saturday => today.AddDays(-1),
-            DayOfWeek.Sunday   => today.AddDays(-2),
-            _                  => today.AddDays(((int)DayOfWeek.Friday - (int)today.DayOfWeek + 7) % 7)
-        };
+            inicio = query.FechaInicio.Value;
+            fin    = query.FechaFin.Value;
+        }
+        else
+        {
+            var today = DateOnly.FromDateTime(DateTime.UtcNow);
+            inicio = today.DayOfWeek switch
+            {
+                DayOfWeek.Saturday => today.AddDays(-1),
+                DayOfWeek.Sunday   => today.AddDays(-2),
+                _                  => today.AddDays(((int)DayOfWeek.Friday - (int)today.DayOfWeek + 7) % 7)
+            };
+            fin = inicio.AddDays(2);
+        }
 
-        var domingo = viernes.AddDays(2);
-        var lunesExclusive = domingo.AddDays(1); // FechaFin es exclusiva en el modelo
+        var lunesExclusive = fin.AddDays(1); // FechaFin es exclusiva en el modelo
 
         var quintas = await repo.GetDisponiblesEstefindeAsync(
-            viernes, lunesExclusive,
+            inicio, lunesExclusive,
             query.Capacidad, query.PrecioMax, query.Pileta, query.Parrilla,
             ct);
 
@@ -31,6 +39,6 @@ public class GetEstefindeHandler(IQuintaRepository repo) : IRequestHandler<GetEs
             q.Imagenes, q.Activa, q.Direccion, q.Latitud, q.Longitud,
             q.Pileta, q.Parrilla, q.Amenities)).ToList();
 
-        return new EstefindeResponse(viernes, domingo, dtos.Count, dtos);
+        return new EstefindeResponse(inicio, fin, dtos.Count, dtos);
     }
 }

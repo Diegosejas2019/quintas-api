@@ -7,7 +7,9 @@ public record GetEstefindeQuery(
     int? Capacidad = null,
     decimal? PrecioMax = null,
     bool? Pileta = null,
-    bool? Parrilla = null
+    bool? Parrilla = null,
+    DateOnly? FechaInicio = null,
+    DateOnly? FechaFin = null
 ) : IRequest<EstefindeResponse>;
 
 public record EstefindeResponse(

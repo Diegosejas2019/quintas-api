@@ -36,10 +36,12 @@ public class QuintasController(IMediator mediator) : ControllerBase
         [FromQuery] decimal? precioMax,
         [FromQuery] bool? pileta,
         [FromQuery] bool? parrilla,
+        [FromQuery] DateOnly? fechaInicio,
+        [FromQuery] DateOnly? fechaFin,
         CancellationToken ct)
     {
         var result = await mediator.Send(
-            new GetEstefindeQuery(capacidad, precioMax, pileta, parrilla), ct);
+            new GetEstefindeQuery(capacidad, precioMax, pileta, parrilla, fechaInicio, fechaFin), ct);
         return Ok(result);
     }
 
