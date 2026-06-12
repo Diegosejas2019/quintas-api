@@ -58,7 +58,9 @@ public class QuintasController(IMediator mediator) : ControllerBase
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetById(Guid id, CancellationToken ct)
     {
-        var result = await mediator.Send(new GetQuintaByIdQuery(id), ct);
+        var esCliente = User.Identity?.IsAuthenticated == true && TipoUsuario != "propietario";
+        var clienteId = esCliente ? SupabaseId : null;
+        var result = await mediator.Send(new GetQuintaByIdQuery(id, clienteId), ct);
         return result == null ? NotFound() : Ok(result);
     }
 

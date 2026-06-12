@@ -63,6 +63,22 @@ public class MongoIndexInitializer(MongoDbContext db, ILogger<MongoIndexInitiali
                     new CreateIndexOptions { Name = "ix_reservas_usuarioId" }),
                 cancellationToken: ct);
 
+            // Unique index on (quintaId, clienteId) for conversations — one thread per pair
+            var conversacionesKeys = Builders<ConversacionDocument>.IndexKeys
+                .Ascending(c => c.QuintaId)
+                .Ascending(c => c.ClienteId);
+            await db.Conversaciones.Indexes.CreateOneAsync(
+                new CreateIndexModel<ConversacionDocument>(conversacionesKeys,
+                    new CreateIndexOptions { Unique = true, Name = "ux_conversaciones_quintaId_clienteId" }),
+                cancellationToken: ct);
+
+            // Index on clienteId for listing client conversations
+            var conversacionesClienteKey = Builders<ConversacionDocument>.IndexKeys.Ascending(c => c.ClienteId);
+            await db.Conversaciones.Indexes.CreateOneAsync(
+                new CreateIndexModel<ConversacionDocument>(conversacionesClienteKey,
+                    new CreateIndexOptions { Name = "ix_conversaciones_clienteId" }),
+                cancellationToken: ct);
+
             logger.LogInformation("MongoDB indexes initialized successfully.");
         }
         catch (Exception ex)

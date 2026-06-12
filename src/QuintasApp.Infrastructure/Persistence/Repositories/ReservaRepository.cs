@@ -146,6 +146,16 @@ public class ReservaRepository(MongoDbContext db) : IReservaRepository
         await db.Reservas.UpdateOneAsync(r => r.Id == idStr, update, cancellationToken: ct);
     }
 
+    public async Task<bool> TieneSeñaEnQuintaAsync(string usuarioId, Guid quintaId, CancellationToken ct = default)
+    {
+        var qIdStr = quintaId.ToString();
+        var filter = Builders<ReservaDocument>.Filter.And(
+            Builders<ReservaDocument>.Filter.Eq(r => r.UsuarioId, usuarioId),
+            Builders<ReservaDocument>.Filter.Eq(r => r.QuintaId, qIdStr),
+            Builders<ReservaDocument>.Filter.Ne(r => r.Sena, null));
+        return await db.Reservas.CountDocumentsAsync(filter, cancellationToken: ct) > 0;
+    }
+
     private static DateTime DateToUtcMidnight(DateOnly d) =>
         new DateTime(d.Year, d.Month, d.Day, 0, 0, 0, DateTimeKind.Utc);
 

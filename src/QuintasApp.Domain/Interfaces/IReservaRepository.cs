@@ -15,4 +15,5 @@ public interface IReservaRepository
     Task InsertarFechasOcupadasAsync(Guid reservaId, Guid quintaId, DateOnly fechaInicio, DateOnly fechaFin, CancellationToken ct = default);
     Task LiberarFechasOcupadasAsync(Guid reservaId, CancellationToken ct = default);
     Task RegistrarSenaAsync(Guid reservaId, Sena sena, EstadoReserva nuevoEstado, DateTimeOffset updatedAt, CancellationToken ct = default);
+    Task<bool> TieneSeñaEnQuintaAsync(string usuarioId, Guid quintaId, CancellationToken ct = default);
 }

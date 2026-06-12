@@ -26,4 +26,7 @@ public class MongoDbContext(IMongoDatabase database)
 
     public IMongoCollection<UsuarioDocument> Usuarios =>
         database.GetCollection<UsuarioDocument>("usuarios");
+
+    public IMongoCollection<ConversacionDocument> Conversaciones =>
+        database.GetCollection<ConversacionDocument>("conversaciones");
 }
