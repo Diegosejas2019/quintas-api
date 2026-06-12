@@ -18,12 +18,14 @@ public class Quinta
     public string? Direccion { get; private set; }
     public decimal? Latitud { get; private set; }
     public decimal? Longitud { get; private set; }
+    public string? HoraInicio { get; private set; }
+    public string? HoraFin { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
 
     private Quinta() { }
 
-    public static Quinta Crear(string nombre, string? descripcion, decimal precioPorDia, int capacidad, string propietarioId, List<string>? imagenes = null, string? direccion = null, decimal? latitud = null, decimal? longitud = null, bool pileta = false, bool parrilla = false, List<string>? amenities = null)
+    public static Quinta Crear(string nombre, string? descripcion, decimal precioPorDia, int capacidad, string propietarioId, List<string>? imagenes = null, string? direccion = null, decimal? latitud = null, decimal? longitud = null, bool pileta = false, bool parrilla = false, List<string>? amenities = null, string? horaInicio = null, string? horaFin = null)
     {
         if (string.IsNullOrWhiteSpace(nombre))
             throw new DomainException("El nombre de la quinta es requerido.");
@@ -31,6 +33,7 @@ public class Quinta
             throw new DomainException("El precio por día debe ser mayor a cero.");
         if (capacidad <= 0)
             throw new DomainException("La capacidad debe ser mayor a cero.");
+        ValidarHorario(horaInicio, horaFin);
 
         return new Quinta
         {
@@ -48,12 +51,14 @@ public class Quinta
             Direccion = direccion?.Trim(),
             Latitud = latitud,
             Longitud = longitud,
+            HoraInicio = horaInicio,
+            HoraFin = horaFin,
             CreatedAt = DateTimeOffset.UtcNow,
             UpdatedAt = DateTimeOffset.UtcNow
         };
     }
 
-    public void Actualizar(string nombre, string? descripcion, decimal precioPorDia, int capacidad, List<string>? imagenes, string? direccion = null, decimal? latitud = null, decimal? longitud = null, bool pileta = false, bool parrilla = false, List<string>? amenities = null)
+    public void Actualizar(string nombre, string? descripcion, decimal precioPorDia, int capacidad, List<string>? imagenes, string? direccion = null, decimal? latitud = null, decimal? longitud = null, bool pileta = false, bool parrilla = false, List<string>? amenities = null, string? horaInicio = null, string? horaFin = null)
     {
         if (string.IsNullOrWhiteSpace(nombre))
             throw new DomainException("El nombre de la quinta es requerido.");
@@ -61,6 +66,7 @@ public class Quinta
             throw new DomainException("El precio por día debe ser mayor a cero.");
         if (capacidad <= 0)
             throw new DomainException("La capacidad debe ser mayor a cero.");
+        ValidarHorario(horaInicio, horaFin);
 
         Nombre = nombre.Trim();
         Descripcion = descripcion?.Trim();
@@ -73,7 +79,19 @@ public class Quinta
         Direccion = direccion?.Trim();
         Latitud = latitud;
         Longitud = longitud;
+        HoraInicio = horaInicio;
+        HoraFin = horaFin;
         UpdatedAt = DateTimeOffset.UtcNow;
+    }
+
+    private static void ValidarHorario(string? horaInicio, string? horaFin)
+    {
+        if (horaInicio is null && horaFin is null) return;
+        if (horaInicio is null || horaFin is null)
+            throw new DomainException("Debe especificar tanto la hora de inicio como la hora de fin.");
+        if (!System.Text.RegularExpressions.Regex.IsMatch(horaInicio, @"^([01]\d|2[0-3]):[0-5]\d$") ||
+            !System.Text.RegularExpressions.Regex.IsMatch(horaFin,    @"^([01]\d|2[0-3]):[0-5]\d$"))
+            throw new DomainException("El horario debe tener formato HH:mm (ej: 10:00).");
     }
 
     public void Desactivar()

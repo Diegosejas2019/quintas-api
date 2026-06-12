@@ -15,7 +15,9 @@ public record QuintaDto(
     decimal? Longitud = null,
     bool Pileta = false,
     bool Parrilla = false,
-    List<string>? Amenities = null
+    List<string>? Amenities = null,
+    string? HoraInicio = null,
+    string? HoraFin = null
 );
 
 public record GetQuintasQuery(string? PropietarioId = null) : IRequest<List<QuintaDto>>;

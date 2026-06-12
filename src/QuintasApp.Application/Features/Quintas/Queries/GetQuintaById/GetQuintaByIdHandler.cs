@@ -10,6 +10,6 @@ public class GetQuintaByIdHandler(IQuintaRepository repo) : IRequestHandler<GetQ
     {
         var q = await repo.GetByIdAsync(query.Id, ct);
         if (q == null) return null;
-        return new QuintaDto(q.Id, q.Nombre, q.Descripcion, q.PrecioPorDia, q.Capacidad, q.Imagenes, q.Activa, q.Direccion, q.Latitud, q.Longitud, q.Pileta, q.Parrilla, q.Amenities);
+        return new QuintaDto(q.Id, q.Nombre, q.Descripcion, q.PrecioPorDia, q.Capacidad, q.Imagenes, q.Activa, q.Direccion, q.Latitud, q.Longitud, q.Pileta, q.Parrilla, q.Amenities, q.HoraInicio, q.HoraFin);
     }
 }

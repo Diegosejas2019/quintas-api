@@ -46,6 +46,12 @@ public class QuintaDocument
     [BsonElement("longitud")]
     public decimal? Longitud { get; set; }
 
+    [BsonElement("horaInicio")]
+    public string? HoraInicio { get; set; }
+
+    [BsonElement("horaFin")]
+    public string? HoraFin { get; set; }
+
     [BsonElement("amenities")]
     public List<string> Amenities { get; set; } = [];
 

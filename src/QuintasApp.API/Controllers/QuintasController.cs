@@ -66,7 +66,7 @@ public class QuintasController(IMediator mediator) : ControllerBase
     {
         var cmd = new CreateQuintaCommand(req.Nombre, req.Descripcion, req.PrecioPorDia, req.Capacidad,
             req.Imagenes, req.Direccion, req.Pileta, req.Parrilla, req.Amenities, req.Latitud, req.Longitud,
-            PropietarioId: SupabaseId!);
+            PropietarioId: SupabaseId!, HoraInicio: req.HoraInicio, HoraFin: req.HoraFin);
         var id = await mediator.Send(cmd, ct);
         return CreatedAtAction(nameof(GetById), new { id }, new { id });
     }
@@ -77,7 +77,7 @@ public class QuintasController(IMediator mediator) : ControllerBase
     {
         await mediator.Send(new UpdateQuintaCommand(id, req.Nombre, req.Descripcion, req.PrecioPorDia,
             req.Capacidad, req.Imagenes, req.Direccion, req.Pileta, req.Parrilla, req.Amenities,
-            req.Latitud, req.Longitud, PropietarioId: SupabaseId!), ct);
+            req.Latitud, req.Longitud, PropietarioId: SupabaseId!, HoraInicio: req.HoraInicio, HoraFin: req.HoraFin), ct);
         return NoContent();
     }
 
@@ -94,10 +94,12 @@ public record CreateQuintaRequest(
     string Nombre, string? Descripcion, decimal PrecioPorDia, int Capacidad,
     List<string>? Imagenes = null, string? Direccion = null,
     bool Pileta = false, bool Parrilla = false, List<string>? Amenities = null,
-    decimal? Latitud = null, decimal? Longitud = null);
+    decimal? Latitud = null, decimal? Longitud = null,
+    string? HoraInicio = null, string? HoraFin = null);
 
 public record UpdateQuintaRequest(
     string Nombre, string? Descripcion, decimal PrecioPorDia, int Capacidad,
     List<string>? Imagenes, string? Direccion = null,
     bool Pileta = false, bool Parrilla = false, List<string>? Amenities = null,
-    decimal? Latitud = null, decimal? Longitud = null);
+    decimal? Latitud = null, decimal? Longitud = null,
+    string? HoraInicio = null, string? HoraFin = null);

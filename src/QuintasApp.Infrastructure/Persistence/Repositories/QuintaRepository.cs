@@ -107,6 +107,8 @@ public class QuintaRepository(MongoDbContext db) : IQuintaRepository
         Set(q, "Direccion", d.Direccion);
         Set(q, "Latitud", d.Latitud);
         Set(q, "Longitud", d.Longitud);
+        Set(q, "HoraInicio", d.HoraInicio);
+        Set(q, "HoraFin", d.HoraFin);
         Set(q, "CreatedAt", d.CreatedAt);
         Set(q, "UpdatedAt", d.UpdatedAt);
         return q;
@@ -128,6 +130,8 @@ public class QuintaRepository(MongoDbContext db) : IQuintaRepository
         Direccion = q.Direccion,
         Latitud = q.Latitud,
         Longitud = q.Longitud,
+        HoraInicio = q.HoraInicio,
+        HoraFin = q.HoraFin,
         CreatedAt = q.CreatedAt,
         UpdatedAt = q.UpdatedAt,
     };

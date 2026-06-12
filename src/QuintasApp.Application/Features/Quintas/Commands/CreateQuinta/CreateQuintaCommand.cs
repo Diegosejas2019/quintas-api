@@ -14,5 +14,7 @@ public record CreateQuintaCommand(
     List<string>? Amenities = null,
     decimal? Latitud = null,
     decimal? Longitud = null,
-    string PropietarioId = ""
+    string PropietarioId = "",
+    string? HoraInicio = null,
+    string? HoraFin = null
 ) : IRequest<Guid>;

@@ -12,7 +12,7 @@ public class UpdateQuintaHandler(IQuintaRepository repo) : IRequestHandler<Updat
             ?? throw new DomainException($"Quinta con id {cmd.Id} no encontrada.");
         if (quinta.PropietarioId != cmd.PropietarioId)
             throw new DomainException("No tenés permiso para modificar esta quinta.");
-        quinta.Actualizar(cmd.Nombre, cmd.Descripcion, cmd.PrecioPorDia, cmd.Capacidad, cmd.Imagenes, cmd.Direccion, cmd.Latitud, cmd.Longitud, pileta: cmd.Pileta, parrilla: cmd.Parrilla, amenities: cmd.Amenities);
+        quinta.Actualizar(cmd.Nombre, cmd.Descripcion, cmd.PrecioPorDia, cmd.Capacidad, cmd.Imagenes, cmd.Direccion, cmd.Latitud, cmd.Longitud, pileta: cmd.Pileta, parrilla: cmd.Parrilla, amenities: cmd.Amenities, horaInicio: cmd.HoraInicio, horaFin: cmd.HoraFin);
         await repo.SaveChangesAsync(ct);
     }
 }
