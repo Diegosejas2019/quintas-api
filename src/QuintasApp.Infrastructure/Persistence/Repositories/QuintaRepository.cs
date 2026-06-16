@@ -74,7 +74,14 @@ public class QuintaRepository(MongoDbContext db) : IQuintaRepository
             .SortBy(q => q.PrecioPorDia)
             .ToListAsync(ct);
 
-        return docs.Select(ToEntity).ToList();
+        var diasFinde = new HashSet<string>();
+        for (var d = viernes; d < lunesExclusive; d = d.AddDays(1))
+            diasFinde.Add(d.ToString("yyyy-MM-dd"));
+
+        return docs
+            .Where(doc => !doc.FechasBloqueadas.Any(f => diasFinde.Contains(f)))
+            .Select(ToEntity)
+            .ToList();
     }
 
     public async Task AddAsync(Quinta quinta, CancellationToken ct = default) =>
@@ -109,6 +116,7 @@ public class QuintaRepository(MongoDbContext db) : IQuintaRepository
         Set(q, "Longitud", d.Longitud);
         Set(q, "HoraInicio", d.HoraInicio);
         Set(q, "HoraFin", d.HoraFin);
+        Set(q, "FechasBloqueadas", d.FechasBloqueadas.Select(s => DateOnly.Parse(s)).ToList());
         Set(q, "CreatedAt", d.CreatedAt);
         Set(q, "UpdatedAt", d.UpdatedAt);
         return q;
@@ -132,6 +140,7 @@ public class QuintaRepository(MongoDbContext db) : IQuintaRepository
         Longitud = q.Longitud,
         HoraInicio = q.HoraInicio,
         HoraFin = q.HoraFin,
+        FechasBloqueadas = q.FechasBloqueadas.Select(f => f.ToString("yyyy-MM-dd")).ToList(),
         CreatedAt = q.CreatedAt,
         UpdatedAt = q.UpdatedAt,
     };

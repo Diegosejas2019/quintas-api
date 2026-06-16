@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using QuintasApp.Application.Features.Quintas.Commands.BloquearFechas;
 using QuintasApp.Application.Features.Quintas.Commands.CreateQuinta;
 using QuintasApp.Application.Features.Quintas.Commands.DeleteQuinta;
 using QuintasApp.Application.Features.Quintas.Commands.UpdateQuinta;
@@ -92,6 +93,15 @@ public class QuintasController(IMediator mediator) : ControllerBase
         await mediator.Send(new DeleteQuintaCommand(id, PropietarioId: SupabaseId!), ct);
         return NoContent();
     }
+
+    [Authorize]
+    [HttpPatch("{id:guid}/bloqueos")]
+    public async Task<IActionResult> BloquearFechas(Guid id, [FromBody] BloquearFechasRequest req, CancellationToken ct)
+    {
+        var fechas = req.Fechas.Select(f => DateOnly.ParseExact(f, "yyyy-MM-dd")).ToList();
+        await mediator.Send(new BloquearFechasCommand(id, fechas, PropietarioId: SupabaseId!), ct);
+        return NoContent();
+    }
 }
 
 public record CreateQuintaRequest(
@@ -107,3 +117,5 @@ public record UpdateQuintaRequest(
     bool Pileta = false, bool Parrilla = false, List<string>? Amenities = null,
     decimal? Latitud = null, decimal? Longitud = null,
     string? HoraInicio = null, string? HoraFin = null);
+
+public record BloquearFechasRequest(List<string> Fechas);

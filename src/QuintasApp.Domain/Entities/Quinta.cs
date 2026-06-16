@@ -20,6 +20,7 @@ public class Quinta
     public decimal? Longitud { get; private set; }
     public string? HoraInicio { get; private set; }
     public string? HoraFin { get; private set; }
+    public List<DateOnly> FechasBloqueadas { get; private set; } = [];
     public DateTimeOffset CreatedAt { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
 
@@ -92,6 +93,12 @@ public class Quinta
         if (!System.Text.RegularExpressions.Regex.IsMatch(horaInicio, @"^([01]\d|2[0-3]):[0-5]\d$") ||
             !System.Text.RegularExpressions.Regex.IsMatch(horaFin,    @"^([01]\d|2[0-3]):[0-5]\d$"))
             throw new DomainException("El horario debe tener formato HH:mm (ej: 10:00).");
+    }
+
+    public void SetFechasBloqueadas(List<DateOnly> fechas)
+    {
+        FechasBloqueadas = fechas;
+        UpdatedAt = DateTimeOffset.UtcNow;
     }
 
     public void Desactivar()

@@ -55,6 +55,9 @@ public class QuintaDocument
     [BsonElement("amenities")]
     public List<string> Amenities { get; set; } = [];
 
+    [BsonElement("fechasBloqueadas")]
+    public List<string> FechasBloqueadas { get; set; } = [];
+
     [BsonElement("createdAt")]
     public DateTimeOffset CreatedAt { get; set; }
 
