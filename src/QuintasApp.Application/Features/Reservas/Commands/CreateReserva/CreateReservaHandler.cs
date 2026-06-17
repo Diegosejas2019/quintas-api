@@ -17,6 +17,9 @@ public class CreateReservaHandler(
         if (!quinta.Activa)
             throw new DomainException("La quinta no está disponible para reservas.");
 
+        if (quinta.TieneFechaBloqueadaEn(cmd.FechaInicio, cmd.FechaFin))
+            throw new DomainException("La quinta no acepta reservas para las fechas solicitadas.");
+
         var reserva = Reserva.Crear(
             cmd.QuintaId,
             cmd.NombreCliente,

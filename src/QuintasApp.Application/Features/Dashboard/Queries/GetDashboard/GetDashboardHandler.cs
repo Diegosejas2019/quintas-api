@@ -1,5 +1,4 @@
 using MediatR;
-using QuintasApp.Domain.Enums;
 using QuintasApp.Domain.Interfaces;
 
 namespace QuintasApp.Application.Features.Dashboard.Queries.GetDashboard;
@@ -9,34 +8,41 @@ public class GetDashboardHandler(IQuintaRepository quintaRepo, IReservaRepositor
 {
     public async Task<DashboardDto> Handle(GetDashboardQuery query, CancellationToken ct)
     {
-        var quintas = query.PropietarioId is not null
-            ? await quintaRepo.GetAllByPropietarioAsync(query.PropietarioId, ct)
-            : await quintaRepo.GetAllAsync(ct);
-
-        IEnumerable<string>? quintaIds = query.PropietarioId is not null
-            ? quintas.Select(q => q.Id.ToString())
-            : null;
-
-        var pendientes = await reservaRepo.GetAllAsync(EstadoReserva.Pendiente, null, 1, 1000, ct, quintaIds);
-        var confirmadas = await reservaRepo.GetAllAsync(EstadoReserva.Confirmada, null, 1, 1000, ct, quintaIds);
-        var finalizadas = await reservaRepo.GetAllAsync(EstadoReserva.Finalizada, null, 1, 1000, ct, quintaIds);
-
         var hoy = DateTime.UtcNow;
         var inicioMes = new DateTime(hoy.Year, hoy.Month, 1, 0, 0, 0, DateTimeKind.Utc);
 
-        var todasConSeña = confirmadas.Concat(finalizadas).Where(r => r.Sena != null);
-        var ingresosTotales = todasConSeña.Sum(r => r.Sena!.Monto);
-        var ingresosEsteMes = todasConSeña
-            .Where(r => r.CreatedAt >= inicioMes)
-            .Sum(r => r.Sena!.Monto);
+        if (query.PropietarioId is not null)
+        {
+            var quintas = await quintaRepo.GetAllByPropietarioAsync(query.PropietarioId, ct);
+            var quintaIds = quintas.Select(q => q.Id.ToString()).ToList();
+            var stats = await reservaRepo.GetDashboardStatsAsync(quintaIds, inicioMes, ct);
 
-        return new DashboardDto(
-            quintas.Count,
-            pendientes.Count,
-            confirmadas.Count,
-            finalizadas.Count,
-            ingresosTotales,
-            ingresosEsteMes
-        );
+            return BuildDto(quintas.Count, stats);
+        }
+        else
+        {
+            var quintasAllTask = quintaRepo.GetAllAsync(ct);
+            var globalStatsTask = reservaRepo.GetDashboardStatsAsync([], inicioMes, ct);
+            await Task.WhenAll(quintasAllTask, globalStatsTask);
+
+            return BuildDto(quintasAllTask.Result.Count, globalStatsTask.Result);
+        }
+    }
+
+    private static DashboardDto BuildDto(
+        int totalQuintas,
+        List<(string Estado, int Count, decimal IngresosTotales, decimal IngresosEsteMes)> stats)
+    {
+        var pendientes  = stats.FirstOrDefault(s => s.Estado == "Pendiente").Count;
+        var confirmadas = stats.FirstOrDefault(s => s.Estado == "Confirmada").Count;
+        var finalizadas = stats.FirstOrDefault(s => s.Estado == "Finalizada").Count;
+        var ingresosTotales = stats
+            .Where(s => s.Estado is "Confirmada" or "Finalizada")
+            .Sum(s => s.IngresosTotales);
+        var ingresosEsteMes = stats
+            .Where(s => s.Estado is "Confirmada" or "Finalizada")
+            .Sum(s => s.IngresosEsteMes);
+
+        return new DashboardDto(totalQuintas, pendientes, confirmadas, finalizadas, ingresosTotales, ingresosEsteMes);
     }
 }

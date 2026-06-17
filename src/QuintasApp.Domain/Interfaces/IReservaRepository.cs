@@ -6,6 +6,7 @@ namespace QuintasApp.Domain.Interfaces;
 public interface IReservaRepository
 {
     Task<List<Reserva>> GetAllAsync(EstadoReserva? estado, Guid? quintaId, int page, int size, CancellationToken ct = default, IEnumerable<string>? quintaIds = null);
+    Task<List<(string Estado, int Count, decimal IngresosTotales, decimal IngresosEsteMes)>> GetDashboardStatsAsync(IEnumerable<string> quintaIds, DateTime inicioMes, CancellationToken ct = default);
     Task<List<Reserva>> GetByUsuarioIdAsync(string usuarioId, CancellationToken ct = default);
     Task<Reserva?> GetByIdAsync(Guid id, CancellationToken ct = default);
     Task<bool> ExisteSolapamientoAsync(Guid quintaId, DateOnly fechaInicio, DateOnly fechaFin, Guid? excludeReservaId = null, CancellationToken ct = default);

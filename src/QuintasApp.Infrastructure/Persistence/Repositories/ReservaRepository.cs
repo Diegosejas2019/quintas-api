@@ -1,3 +1,4 @@
+using MongoDB.Bson;
 using MongoDB.Driver;
 using QuintasApp.Domain.Entities;
 using QuintasApp.Domain.Enums;
@@ -83,6 +84,44 @@ public class ReservaRepository(MongoDbContext db) : IReservaRepository
             .Distinct()
             .OrderBy(d => d)
             .ToList();
+    }
+
+    public async Task<List<(string Estado, int Count, decimal IngresosTotales, decimal IngresosEsteMes)>> GetDashboardStatsAsync(
+        IEnumerable<string> quintaIds, DateTime inicioMes, CancellationToken ct = default)
+    {
+        var ids = quintaIds.ToList();
+        var matchFilter = ids.Count > 0
+            ? new BsonDocument("quintaId", new BsonDocument("$in", new BsonArray(ids)))
+            : new BsonDocument();
+        var matchStage = new BsonDocument("$match", matchFilter);
+
+        var inicioMesBson = new BsonDateTime(inicioMes);
+        var groupStage = new BsonDocument("$group", new BsonDocument
+        {
+            { "_id", "$estado" },
+            { "count", new BsonDocument("$sum", 1) },
+            { "ingresosTotales", new BsonDocument("$sum",
+                new BsonDocument("$ifNull", new BsonArray { "$sena.monto", 0 })) },
+            { "ingresosEsteMes", new BsonDocument("$sum",
+                new BsonDocument("$cond", new BsonArray
+                {
+                    new BsonDocument("$gte", new BsonArray { "$createdAt", inicioMesBson }),
+                    new BsonDocument("$ifNull", new BsonArray { "$sena.monto", 0 }),
+                    0
+                })) }
+        });
+
+        var pipeline = PipelineDefinition<ReservaDocument, BsonDocument>.Create(
+            new[] { matchStage, groupStage });
+
+        var results = await db.Reservas.Aggregate(pipeline, cancellationToken: ct).ToListAsync(ct);
+
+        return results.Select(doc => (
+            Estado: doc["_id"].AsString,
+            Count: doc["count"].AsInt32,
+            IngresosTotales: MongoDB.Bson.Decimal128.ToDecimal(doc["ingresosTotales"].AsDecimal128),
+            IngresosEsteMes: MongoDB.Bson.Decimal128.ToDecimal(doc["ingresosEsteMes"].AsDecimal128)
+        )).ToList();
     }
 
     public async Task AddAsync(Reserva reserva, string quintaNombre, Guid? usuarioId = null, CancellationToken ct = default)

@@ -101,6 +101,15 @@ public class Quinta
         UpdatedAt = DateTimeOffset.UtcNow;
     }
 
+    public bool TieneFechaBloqueadaEn(DateOnly inicio, DateOnly fin)
+    {
+        if (FechasBloqueadas.Count == 0) return false;
+        var bloqueadas = new HashSet<DateOnly>(FechasBloqueadas);
+        for (var d = inicio; d <= fin; d = d.AddDays(1))
+            if (bloqueadas.Contains(d)) return true;
+        return false;
+    }
+
     public void Desactivar()
     {
         if (!Activa) throw new DomainException("La quinta ya está desactivada.");

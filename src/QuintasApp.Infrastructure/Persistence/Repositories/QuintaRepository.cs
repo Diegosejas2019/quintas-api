@@ -28,6 +28,14 @@ public class QuintaRepository(MongoDbContext db) : IQuintaRepository
         return docs.Select(ToEntity).ToList();
     }
 
+    public async Task<List<string>> GetIdsByPropietarioAsync(string propietarioId, CancellationToken ct = default)
+    {
+        return await db.Quintas
+            .Find(q => q.PropietarioId == propietarioId)
+            .Project(q => q.Id)
+            .ToListAsync(ct);
+    }
+
     public async Task<Quinta?> GetByIdAsync(Guid id, CancellationToken ct = default)
     {
         var idStr = id.ToString();

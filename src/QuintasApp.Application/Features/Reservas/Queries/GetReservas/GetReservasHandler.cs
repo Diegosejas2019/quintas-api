@@ -11,8 +11,7 @@ public class GetReservasHandler(IReservaRepository repo, IQuintaRepository quint
         IEnumerable<string>? quintaIds = null;
         if (query.PropietarioId is not null)
         {
-            var quintas = await quintaRepo.GetAllByPropietarioAsync(query.PropietarioId, ct);
-            quintaIds = quintas.Select(q => q.Id.ToString());
+            quintaIds = await quintaRepo.GetIdsByPropietarioAsync(query.PropietarioId, ct);
         }
 
         var reservas = await repo.GetAllAsync(query.Estado, query.QuintaId, query.Page, query.Size, ct, quintaIds);
