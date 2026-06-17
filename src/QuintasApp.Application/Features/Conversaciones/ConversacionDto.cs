@@ -9,7 +9,9 @@ public record ConversacionDto(
     string? UltimoMensaje,
     DateTime UltimoMensajeEn,
     int TotalMensajes,
-    int MensajesNoLeidos
+    int MensajesNoLeidos,
+    DateTime? UltimoLeidoPorPropietario,
+    DateTime? UltimoLeidoPorCliente
 );
 
 public record MensajeDto(

@@ -7,7 +7,8 @@ namespace QuintasApp.Application.Features.Conversaciones.Commands.MarcarLeida;
 
 public class MarcarLeidaHandler(
     IConversacionRepository repo,
-    IQuintaRepository quintas) : IRequestHandler<MarcarLeidaCommand>
+    IQuintaRepository quintas,
+    IChatHub chatHub) : IRequestHandler<MarcarLeidaCommand>
 {
     public async Task Handle(MarcarLeidaCommand cmd, CancellationToken ct)
     {
@@ -29,5 +30,9 @@ public class MarcarLeidaHandler(
             conversacion.MarcarLeidaPorPropietario();
 
         await repo.UpdateAsync(conversacion, ct);
+
+        var quien = esCliente ? "Cliente" : "Propietario";
+        var timestamp = DateTime.UtcNow;
+        try { await chatHub.EmitirLeidoAsync(conversacion.Id, quien, timestamp); } catch { }
     }
 }

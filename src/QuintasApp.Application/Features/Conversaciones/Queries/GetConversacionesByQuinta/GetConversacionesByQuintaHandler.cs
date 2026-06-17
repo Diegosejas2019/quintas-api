@@ -33,6 +33,8 @@ public class GetConversacionesByQuintaHandler(
             c.Mensajes.LastOrDefault()?.Texto,
             c.UltimoMensajeEn,
             c.Mensajes.Count,
-            noLeidos);
+            noLeidos,
+            c.UltimoLeidoPorPropietario,
+            c.UltimoLeidoPorCliente);
     }
 }

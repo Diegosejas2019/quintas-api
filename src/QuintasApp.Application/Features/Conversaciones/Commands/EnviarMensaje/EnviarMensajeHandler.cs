@@ -2,6 +2,7 @@ using MediatR;
 using QuintasApp.Domain.Enums;
 using QuintasApp.Domain.Exceptions;
 using QuintasApp.Domain.Interfaces;
+using QuintasApp.Application.Features.Conversaciones;
 
 namespace QuintasApp.Application.Features.Conversaciones.Commands.EnviarMensaje;
 
@@ -9,7 +10,8 @@ public class EnviarMensajeHandler(
     IConversacionRepository repo,
     IQuintaRepository quintas,
     IPushTokenRepository pushTokens,
-    IPushNotificador pushNotificador) : IRequestHandler<EnviarMensajeCommand, MensajeDto>
+    IPushNotificador pushNotificador,
+    IChatHub chatHub) : IRequestHandler<EnviarMensajeCommand, MensajeDto>
 {
     public async Task<MensajeDto> Handle(EnviarMensajeCommand cmd, CancellationToken ct)
     {
@@ -43,6 +45,10 @@ public class EnviarMensajeHandler(
             }
         }
 
-        return new MensajeDto(mensaje.Id, mensaje.Texto, mensaje.RemitenteRol.ToString(), mensaje.RemitenteId, mensaje.EnviadoEn);
+        var dto = new MensajeDto(mensaje.Id, mensaje.Texto, mensaje.RemitenteRol.ToString(), mensaje.RemitenteId, mensaje.EnviadoEn);
+
+        try { await chatHub.EmitirMensajeAsync(conversacion.Id, dto); } catch { }
+
+        return dto;
     }
 }

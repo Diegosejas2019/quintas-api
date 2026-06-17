@@ -25,6 +25,8 @@ public class GetConversacionesByClienteHandler(IConversacionRepository repo)
             c.Mensajes.LastOrDefault()?.Texto,
             c.UltimoMensajeEn,
             c.Mensajes.Count,
-            noLeidos);
+            noLeidos,
+            c.UltimoLeidoPorPropietario,
+            c.UltimoLeidoPorCliente);
     }
 }
