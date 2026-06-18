@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.Extensions.Logging;
 using QuintasApp.Domain.Exceptions;
 using QuintasApp.Domain.Interfaces;
 
@@ -6,7 +7,8 @@ namespace QuintasApp.Application.Features.Reservas.Commands.CancelReserva;
 
 public class CancelReservaHandler(
     IReservaRepository repo,
-    IBackgroundNotificador notificador) : IRequestHandler<CancelReservaCommand>
+    INotificacionService notificacionService,
+    ILogger<CancelReservaHandler> logger) : IRequestHandler<CancelReservaCommand>
 {
     public async Task Handle(CancelReservaCommand cmd, CancellationToken ct)
     {
@@ -22,6 +24,13 @@ public class CancelReservaHandler(
         await repo.SaveChangesAsync(ct);
         await repo.LiberarFechasOcupadasAsync(reservaId, ct);
 
-        notificador.ProgramarNotificacionCancelacion(quintaId, fechaInicio, fechaFin);
+        try
+        {
+            await notificacionService.NotificarCancelacionAsync(quintaId, fechaInicio, fechaFin, ct);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error al notificar cancelación de Quinta {QuintaId}", quintaId);
+        }
     }
 }

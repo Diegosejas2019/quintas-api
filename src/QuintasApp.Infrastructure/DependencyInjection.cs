@@ -32,7 +32,6 @@ public static class DependencyInjection
         services.AddScoped<IConversacionRepository, ConversacionRepository>();
         services.AddScoped<IPushNotificador, PushNotificador>();
         services.AddScoped<INotificacionService, NotificacionService>();
-        services.AddSingleton<IBackgroundNotificador, BackgroundNotificador>();
         services.AddSingleton<ChatHub>();
         services.AddSingleton<IChatHub>(sp => sp.GetRequiredService<ChatHub>());
         services.AddScoped<ResendEmailService>();
